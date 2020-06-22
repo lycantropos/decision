@@ -1,8 +1,8 @@
 decision
-=========
+========
 
 [![](https://travis-ci.com/lycantropos/decision.svg?branch=master)](https://travis-ci.com/lycantropos/decision "Travis CI")
-[![](https://dev.azure.com/lycantropos/decision/_apis/build/status/lycantropos.decision?branchName=master)](https://dev.azure.com/lycantropos/decision/_build/latest?branchName=master "Azure Pipelines")
+[![](https://dev.azure.com/lycantropos/decision/_apis/build/status/lycantropos.decision?branchName=master)](https://dev.azure.com/lycantropos/decision/_build/latest?definitionId=27&branchName=master "Azure Pipelines")
 [![](https://codecov.io/gh/lycantropos/decision/branch/master/graph/badge.svg)](https://codecov.io/gh/lycantropos/decision "Codecov")
 [![](https://img.shields.io/github/license/lycantropos/decision.svg)](https://github.com/lycantropos/decision/blob/master/LICENSE "License")
 [![](https://badge.fury.io/py/decision.svg)](https://badge.fury.io/py/decision "PyPI")
