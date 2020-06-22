@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  decision-pypy:
+    build:
+      context: .
+      args:
+        - PYTHON_IMAGE=${PYPY_IMAGE_NAME}
+        - PYTHON_IMAGE_VERSION=${PYPY_IMAGE_VERSION}
+    image: lycantropos/decision-pypy:0.0.0
+    volumes:
+      - ./decision/:/opt/decision/decision/
+      - ./tests/:/opt/decision/tests/
+      - ./README.md:/opt/decision/README.md
+      - ./requirements.txt:/opt/decision/requirements.txt
+      - ./requirements-tests.txt:/opt/decision/requirements-tests.txt
+      - ./setup.py:/opt/decision/setup.py
+      - ./pytest.ini:/opt/decision/pytest.ini
+    entrypoint: pytest
