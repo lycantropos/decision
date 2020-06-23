@@ -66,6 +66,21 @@ Install:
   pypy setup.py install
   ```
 
+Usage
+-----
+```python
+>>> from decision.partition import coin_change
+>>> list(coin_change(10, [2]))
+[2, 2, 2, 2, 2]
+>>> list(coin_change(10, [2, 3]))
+[2, 2, 3, 3]
+>>> list(coin_change(10, [2, 3, 4]))
+[2, 4, 4]
+>>> list(coin_change(10, [2, 3, 4, 5]))
+[5, 5]
+
+```
+
 Development
 -----------
 
