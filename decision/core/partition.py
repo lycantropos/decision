@@ -38,7 +38,7 @@ def coin_change(amount: int,
                                                                denominations)
                                 if count)
             if candidates:
-                if (len(candidate) > len(candidates[-1])
+                if (sum(candidate) > sum(candidates[-1])
                         and candidate_sum > min_sum):
                     break
                 min_sum = min(min_sum, candidate_sum)
