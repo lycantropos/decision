@@ -1,10 +1,12 @@
+from itertools import (chain,
+                       repeat)
 from typing import (Iterable,
-                    Tuple)
+                    Iterator)
 
 from .core.partition import coin_change as _coin_change
 
 
-def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
+def coin_change(amount: int, denominations: Iterable[int]) -> Iterator[int]:
     """
     Solves coin change problem:
     what is the minimal number of coins of given unique denominations
@@ -32,4 +34,9 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
     elif not all(denomination > 0
                  for denomination in denominations):
         raise ValueError('Denominations should be positive.')
-    return _coin_change(amount, denominations, len(denominations))
+    return chain.from_iterable(
+            repeat(denomination, count)
+            for count, denomination in zip(_coin_change(amount, denominations,
+                                                        len(denominations)),
+                                           denominations)
+            if count)
