@@ -7,7 +7,7 @@ from .utils import (ceil_division,
                     diophantine_initial_solution)
 
 
-@lru_cache(4096)
+@lru_cache(256)
 def coin_change(amount: int,
                 denominations: Sequence[int],
                 denominations_count: int) -> Tuple[int, ...]:
