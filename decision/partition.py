@@ -1,6 +1,8 @@
 from itertools import (chain,
+                       groupby,
                        repeat)
-from typing import (Iterable,
+from typing import (Any,
+                    Iterable,
                     Iterator)
 
 from .core.partition import coin_change as _coin_change
@@ -34,9 +36,17 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Iterator[int]:
     elif not all(denomination > 0
                  for denomination in denominations):
         raise ValueError('Denominations should be positive.')
+    elif not all(_has_single_value(group)
+                 for _, group in groupby(denominations)):
+        raise ValueError('All denominations should be unique.')
     return chain.from_iterable(
             repeat(denomination, count)
             for count, denomination in zip(_coin_change(amount, denominations,
                                                         len(denominations)),
                                            denominations)
             if count)
+
+
+def _has_single_value(iterator: Iterator, _sentinel: Any = object()) -> bool:
+    return (next(iterator, _sentinel) is not _sentinel
+            and next(iterator, _sentinel) is _sentinel)
