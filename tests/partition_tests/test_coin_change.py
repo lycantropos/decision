@@ -3,7 +3,8 @@ from typing import List
 import pytest
 from hypothesis import given
 
-from decision.partition import coin_change
+from decision.partition import (coin_change,
+                                coin_changes)
 from . import strategies
 
 
@@ -26,7 +27,10 @@ def test_elements(amount: int, denominations: List[int]) -> None:
 def test_sum(amount: int, denominations: List[int]) -> None:
     result = coin_change(amount, denominations)
 
-    assert sum(result) >= amount
+    result_sum = sum(result)
+    assert result_sum >= amount
+    assert all((sum(candidate), len(candidate)) >= (result_sum, len(result))
+               for candidate in coin_changes(amount, denominations))
 
 
 @given(strategies.invalid_amounts, strategies.denominations_lists)
