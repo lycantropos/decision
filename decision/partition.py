@@ -4,10 +4,12 @@ from itertools import (chain,
 from typing import (Any,
                     Iterable,
                     Iterator,
+                    List,
                     Sequence,
                     Tuple)
 
-from .core.partition import coin_change as _coin_change
+from .core.partition import (coin_change as _coin_change,
+                             coin_changes as _coin_changes)
 
 
 def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
@@ -35,6 +37,39 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
     _validate_denominations(denominations)
     return _to_change(_coin_change(amount, denominations, len(denominations)),
                       denominations)
+
+
+def coin_changes(amount: int, denominations: Iterable[int]
+                 ) -> List[Tuple[int, ...]]:
+    """
+    Returns all possible coins of given unique denominations
+    such that their sum will be no less than the given amount.
+
+    Reference:
+        https://en.wikipedia.org/wiki/Change-making_problem
+
+    >>> coin_changes(0, [2, 3])
+    [()]
+    >>> coin_changes(5, [2, 3])
+    [(2, 3), (2, 2, 2)]
+    >>> coin_changes(5, [2, 3, 5])
+    [(5,), (2, 3), (2, 2, 2)]
+    >>> coin_changes(15, [2, 3])
+    [(3, 3, 3, 3, 3), (2, 2, 3, 3, 3, 3), (2, 2, 2, 3, 3, 3),\
+ (2, 2, 2, 2, 2, 3, 3), (2, 2, 2, 2, 2, 2, 3), (2, 2, 2, 2, 2, 2, 2, 2)]
+    >>> coin_changes(15, [2, 3, 5])
+    [(5, 5, 5), (2, 3, 5, 5), (2, 2, 2, 5, 5), (2, 3, 3, 3, 5),\
+ (2, 2, 3, 3, 5), (2, 2, 2, 2, 3, 5), (2, 2, 2, 2, 2, 5), (3, 3, 3, 3, 3),\
+ (2, 2, 3, 3, 3, 3), (2, 2, 2, 3, 3, 3), (2, 2, 2, 2, 2, 3, 3),\
+ (2, 2, 2, 2, 2, 2, 3), (2, 2, 2, 2, 2, 2, 2, 2)]
+    """
+    _validate_amount(amount)
+    denominations = tuple(denominations)
+    _validate_denominations(denominations)
+    denominations = sorted(denominations)
+    return list(_to_change(change, denominations)
+                for change in _coin_changes(amount, denominations,
+                                            len(denominations)))
 
 
 def _to_change(counts: Sequence[int],

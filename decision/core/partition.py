@@ -6,6 +6,7 @@ from itertools import (accumulate,
                        repeat)
 from operator import sub
 from typing import (Callable,
+                    Iterator,
                     Sequence,
                     Tuple)
 
@@ -63,6 +64,31 @@ def coin_change(amount: int,
                      key=key)
         return result if extra is None else min(result, extra,
                                                 key=key)
+
+
+def coin_changes(amount: int,
+                 denominations: Sequence[int],
+                 denominations_count: int,
+                 *,
+                 zeros: Callable[[int], Tuple[int, ...]] = (0,).__mul__
+                 ) -> Iterator[Tuple[int, ...]]:
+    if not amount:
+        yield zeros(len(denominations))
+    elif denominations_count == 1:
+        yield (_one_coin_change(amount, denominations[0])
+               + zeros(len(denominations) - 1))
+    else:
+        last_denomination_index = denominations_count - 1
+        last_denomination = denominations[last_denomination_index]
+        max_last_denomination_count = amount // last_denomination
+        start_amount = amount - max_last_denomination_count * last_denomination
+        for last_denomination_count in range(max_last_denomination_count, -1,
+                                             -1):
+            for candidate in coin_changes(start_amount, denominations,
+                                          last_denomination_index):
+                yield _add_at_index(candidate, last_denomination_index,
+                                    last_denomination_count)
+            start_amount += last_denomination
 
 
 def _one_coin_change(amount: int, denomination: int) -> Tuple[int]:
