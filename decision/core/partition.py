@@ -1,6 +1,7 @@
 import math
 from functools import lru_cache
-from typing import (Sequence,
+from typing import (Callable,
+                    Sequence,
                     Tuple)
 
 from .utils import (ceil_division,
@@ -10,16 +11,19 @@ from .utils import (ceil_division,
 @lru_cache(256)
 def coin_change(amount: int,
                 denominations: Sequence[int],
-                denominations_count: int) -> Tuple[int, ...]:
+                denominations_count: int,
+                *,
+                zeros: Callable[[int], Tuple[int, ...]] = (0,).__mul__
+                ) -> Tuple[int, ...]:
     if not amount:
-        return _zeros(len(denominations))
+        return zeros(len(denominations))
     elif denominations_count == 1:
         return (_one_coin_change(amount, denominations[0])
-                + _zeros(len(denominations) - 1))
+                + zeros(len(denominations) - 1))
     elif denominations_count == 2:
         return (_two_coin_change(amount, denominations[0],
                                  denominations[1])
-                + _zeros(len(denominations) - 2))
+                + zeros(len(denominations) - 2))
     else:
         last_denomination_index = denominations_count - 1
         last_denomination = denominations[last_denomination_index]
@@ -79,6 +83,3 @@ def _add_at_index(counts: Tuple[int, ...],
                   index: int,
                   count: int) -> Tuple[int, ...]:
     return counts[:index] + (counts[index] + count,) + counts[index + 1:]
-
-
-_zeros = (0,).__mul__
