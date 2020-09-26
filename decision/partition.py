@@ -4,7 +4,6 @@ from itertools import (chain,
 from typing import (Any,
                     Iterable,
                     Iterator,
-                    List,
                     Sequence,
                     Tuple)
 
@@ -40,7 +39,7 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
 
 
 def coin_changes(amount: int, denominations: Iterable[int]
-                 ) -> List[Tuple[int, ...]]:
+                 ) -> Iterator[Tuple[int, ...]]:
     """
     Returns all possible coins of given unique denominations
     such that their sum will be no less than the given amount.
@@ -67,9 +66,9 @@ def coin_changes(amount: int, denominations: Iterable[int]
     denominations = tuple(denominations)
     _validate_denominations(denominations)
     denominations = sorted(denominations)
-    return list(_to_change(change, denominations)
-                for change in _coin_changes(amount, denominations,
-                                            len(denominations)))
+    return (_to_change(change, denominations)
+            for change in _coin_changes(amount, denominations,
+                                        len(denominations)))
 
 
 def _to_change(counts: Sequence[int],
