@@ -1,5 +1,10 @@
 import math
+from bisect import bisect_left
 from functools import lru_cache
+from itertools import (accumulate,
+                       chain,
+                       repeat)
+from operator import sub
 from typing import (Callable,
                     Sequence,
                     Tuple)
@@ -20,38 +25,44 @@ def coin_change(amount: int,
     elif denominations_count == 1:
         return (_one_coin_change(amount, denominations[0])
                 + zeros(len(denominations) - 1))
+    elif amount <= denominations[0]:
+        return (1,) + zeros(len(denominations) - 1)
     elif denominations_count == 2:
-        return (_two_coin_change(amount, denominations[0],
-                                 denominations[1])
+        return (_two_coin_change(amount, denominations[0], denominations[1])
                 + zeros(len(denominations) - 2))
     else:
         last_denomination_index = denominations_count - 1
         last_denomination = denominations[last_denomination_index]
-        candidates = []
+        extra = None
+        if amount <= denominations[-1]:
+            ceil_index = bisect_left(denominations, amount)
+            ceil_denomination = denominations[ceil_index]
+            if amount == ceil_denomination:
+                return (zeros(ceil_index) + (1,)
+                        + zeros(len(denominations) - ceil_index - 1))
+            extra = (zeros(ceil_index)
+                     + (ceil_division(amount, ceil_denomination),)
+                     + zeros(len(denominations) - ceil_index - 1))
+
+        def key(counts: Tuple[int, ...]) -> Tuple[int, int]:
+            return (sum(count * denomination
+                        for count, denomination in zip(counts, denominations)
+                        if count),
+                    sum(counts))
+
         max_last_denomination_count = amount // last_denomination
-        start_amount = amount - max_last_denomination_count * last_denomination
-        min_sum = None
-        for last_denomination_count in range(max_last_denomination_count, -1,
-                                             -1):
-            candidate = _add_at_index(coin_change(start_amount, denominations,
-                                                  last_denomination_index),
-                                      last_denomination_index,
-                                      last_denomination_count)
-            candidate_sum = sum(count * denomination
-                                for count, denomination in zip(candidate,
-                                                               denominations)
-                                if count)
-            if candidates:
-                if (sum(candidate) > sum(candidates[-1])
-                        and candidate_sum > min_sum):
-                    break
-                min_sum = min(min_sum, candidate_sum)
-            else:
-                min_sum = candidate_sum
-            candidates.append(candidate)
-            start_amount += last_denomination
-        return min(candidates,
-                   key=len)
+        result = min([_add_at_index(coin_change(start_amount, denominations,
+                                                last_denomination_index),
+                                    last_denomination_index,
+                                    last_denomination_count)
+                      for last_denomination_count, start_amount
+                      in zip(range(max_last_denomination_count + 1),
+                             accumulate(chain((amount,),
+                                              repeat(last_denomination)),
+                                        sub))],
+                     key=key)
+        return result if extra is None else min(result, extra,
+                                                key=key)
 
 
 def _one_coin_change(amount: int, denomination: int) -> Tuple[int]:
@@ -61,22 +72,22 @@ def _one_coin_change(amount: int, denomination: int) -> Tuple[int]:
 def _two_coin_change(amount: int,
                      first_denomination: int,
                      second_denomination: int) -> Tuple[int, int]:
-    first_count, second_count = diophantine_initial_solution(
-            first_denomination, second_denomination, amount)
-    if first_count < 0:
-        gcd = math.gcd(first_denomination, second_denomination)
-        step = -(first_count * gcd // second_denomination)
-        first_count += step * second_denomination // gcd
-        second_count -= step * first_denomination // gcd
-    elif second_count < 0:
-        gcd = math.gcd(first_denomination, second_denomination)
-        step = -(second_count * gcd // first_denomination)
-        first_count -= step * second_denomination // gcd
-        second_count += step * first_denomination // gcd
-    if first_count < 0 or second_count < 0:
-        first_count = ceil_division(amount, first_denomination)
-        second_count = 0
-    return first_count, second_count
+    gcd = math.gcd(first_denomination, second_denomination)
+    prime_first_denomination = first_denomination // gcd
+    prime_second_denomination = second_denomination // gcd
+    for amount in range(amount,
+                        min(ceil_division(amount, first_denomination)
+                            * first_denomination,
+                            ceil_division(amount, second_denomination)
+                            * second_denomination) + 1):
+        first_count, second_count = diophantine_initial_solution(
+                first_denomination, second_denomination, amount)
+        offset = ceil_division(-first_count, prime_second_denomination)
+        has_non_negative_solution = offset <= (second_count
+                                               // prime_first_denomination)
+        if has_non_negative_solution:
+            return (first_count + offset * prime_second_denomination,
+                    second_count - offset * prime_first_denomination)
 
 
 def _add_at_index(counts: Tuple[int, ...],
