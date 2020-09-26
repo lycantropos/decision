@@ -1,4 +1,3 @@
-from collections import abc
 from typing import List
 
 import pytest
@@ -12,7 +11,7 @@ from . import strategies
 def test_basic(amount: int, denominations: List[int]) -> None:
     result = coin_change(amount, denominations)
 
-    assert isinstance(result, abc.Iterator)
+    assert isinstance(result, tuple)
     assert all(isinstance(element, int) for element in result)
 
 
