@@ -7,8 +7,8 @@ from typing import (Any,
                     Sequence,
                     Tuple)
 
-from .core.partition import (coin_change as _coin_change,
-                             coin_changes as _coin_changes)
+from .core.partition import (coins_counter as _coins_counter,
+                             coins_counters as _coins_counters)
 
 
 def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
@@ -34,7 +34,8 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
     _validate_amount(amount)
     denominations = tuple(sorted(denominations))
     _validate_denominations(denominations)
-    return _to_change(_coin_change(amount, denominations, len(denominations)),
+    return _to_change(_coins_counter(amount, denominations,
+                                     len(denominations)),
                       denominations)
 
 
@@ -66,9 +67,9 @@ def coin_changes(amount: int, denominations: Iterable[int]
     denominations = tuple(denominations)
     _validate_denominations(denominations)
     denominations = sorted(denominations)
-    return (_to_change(change, denominations)
-            for change in _coin_changes(amount, denominations,
-                                        len(denominations)))
+    return map(_to_change, _coins_counters(amount, denominations,
+                                           len(denominations)),
+               repeat(denominations))
 
 
 def _to_change(counts: Sequence[int],
