@@ -70,14 +70,14 @@ Usage
 -----
 ```python
 >>> from decision.partition import coin_change
->>> list(coin_change(10, [2]))
-[2, 2, 2, 2, 2]
->>> list(coin_change(10, [2, 3]))
-[2, 2, 3, 3]
->>> list(coin_change(10, [2, 3, 4]))
-[3, 3, 4]
->>> list(coin_change(10, [2, 3, 4, 5]))
-[5, 5]
+>>> coin_change(10, [2])
+(2, 2, 2, 2, 2)
+>>> coin_change(10, [2, 3])
+(2, 2, 3, 3)
+>>> coin_change(10, [2, 3, 4])
+(3, 3, 4)
+>>> coin_change(10, [2, 3, 4, 5])
+(5, 5)
 
 ```
 
