@@ -52,15 +52,16 @@ def _coins_counters(amount: int,
     last_denomination = denominations[last_denomination_index]
     max_last_denomination_count, amount_remainder = divmod(
             amount, last_denomination)
-    yield from coins_counters(amount, denominations, last_denomination_index)
-    for last_denomination_count in range(1, max_last_denomination_count + 1):
-        amount -= last_denomination
-        for counter in coins_counters(amount, denominations,
+    step = amount_remainder
+    for last_denomination_count in range(max_last_denomination_count, 0, -1):
+        for counter in coins_counters(step, denominations,
                                       last_denomination_index):
             yield (counter[:last_denomination_index]
                    + (counter[last_denomination_index]
                       + last_denomination_count,)
                    + counter[last_denomination_index + 1:])
+        step += last_denomination
+    yield from coins_counters(step, denominations, last_denomination_index)
     if amount_remainder:
         yield (_zeros(last_denomination_index)
                + (max_last_denomination_count + 1,)
