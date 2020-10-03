@@ -42,22 +42,22 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
 def coin_changes(amount: int, denominations: Iterable[int]
                  ) -> Iterator[Tuple[int, ...]]:
     """
-    Returns all possible coins of given unique denominations
+    Returns iterator over all possible coins of given unique denominations
     such that their sum will be no less than the given amount.
 
     Reference:
         https://en.wikipedia.org/wiki/Change-making_problem
 
-    >>> coin_changes(0, [2, 3])
+    >>> list(coin_changes(0, [2, 3]))
     [()]
-    >>> coin_changes(5, [2, 3])
+    >>> list(coin_changes(5, [2, 3]))
     [(2, 3), (2, 2, 2)]
-    >>> coin_changes(5, [2, 3, 5])
+    >>> list(coin_changes(5, [2, 3, 5]))
     [(5,), (2, 3), (2, 2, 2)]
-    >>> coin_changes(15, [2, 3])
+    >>> list(coin_changes(15, [2, 3]))
     [(3, 3, 3, 3, 3), (2, 2, 3, 3, 3, 3), (2, 2, 2, 3, 3, 3),\
  (2, 2, 2, 2, 2, 3, 3), (2, 2, 2, 2, 2, 2, 3), (2, 2, 2, 2, 2, 2, 2, 2)]
-    >>> coin_changes(15, [2, 3, 5])
+    >>> list(coin_changes(15, [2, 3, 5]))
     [(5, 5, 5), (2, 3, 5, 5), (2, 2, 2, 5, 5), (2, 3, 3, 3, 5),\
  (2, 2, 3, 3, 5), (2, 2, 2, 2, 3, 5), (2, 2, 2, 2, 2, 5), (3, 3, 3, 3, 3),\
  (2, 2, 3, 3, 3, 3), (2, 2, 2, 3, 3, 3), (2, 2, 2, 2, 2, 3, 3),\
