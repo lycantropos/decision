@@ -17,7 +17,7 @@ CoinsCounter = Tuple[int, ...]
 _zeros = (0,).__mul__  # type: Callable[[int], CoinsCounter]
 
 
-@lru_cache(256)
+@lru_cache(1024)
 def coins_counter(amount: int,
                   denominations: Sequence[int],
                   denominations_count: int) -> CoinsCounter:
