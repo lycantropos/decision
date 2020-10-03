@@ -58,8 +58,7 @@ def coins_counter(amount: int,
 
 def _coins_counters(amount: int,
                     denominations: Sequence[int],
-                    denominations_count: int
-                    ) -> Iterator[CoinsCounter]:
+                    denominations_count: int) -> Iterator[CoinsCounter]:
     if not amount:
         yield _zeros(len(denominations))
     elif amount <= denominations[0]:
@@ -70,24 +69,22 @@ def _coins_counters(amount: int,
     else:
         last_denomination_index = denominations_count - 1
         last_denomination = denominations[last_denomination_index]
-        max_last_denomination_count, step = divmod(amount, last_denomination)
-        if step:
+        max_last_denomination_count, remainder = divmod(amount,
+                                                        last_denomination)
+        has_remainder = bool(remainder)
+        if has_remainder:
             for last_denomination_count in range(max_last_denomination_count,
                                                  0, -1):
-                counter = coins_counter(step, denominations,
+                counter = coins_counter(remainder, denominations,
                                         last_denomination_index)
                 yield (counter[:last_denomination_index]
                        + (counter[last_denomination_index]
                           + last_denomination_count,)
                        + counter[last_denomination_index + 1:])
-                step += last_denomination
-            yield (_zeros(last_denomination_index)
-                   + (max_last_denomination_count + 1,)
-                   + _zeros(len(denominations) - 1 - last_denomination_index))
-        else:
-            yield (_zeros(last_denomination_index)
-                   + (max_last_denomination_count,)
-                   + _zeros(len(denominations) - 1 - last_denomination_index))
+                remainder += last_denomination
+        yield (_zeros(last_denomination_index)
+               + (max_last_denomination_count + has_remainder,)
+               + _zeros(len(denominations) - 1 - last_denomination_index))
         yield from _coins_counters(amount, denominations,
                                    last_denomination_index)
 
