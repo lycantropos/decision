@@ -59,11 +59,7 @@ def coins_counter(amount: int,
 def _coins_counters(amount: int,
                     denominations: Sequence[int],
                     denominations_count: int) -> Iterator[CoinsCounter]:
-    if not amount:
-        yield _zeros(len(denominations))
-    elif amount <= denominations[0]:
-        yield (1,) + _zeros(len(denominations) - 1)
-    elif denominations_count == 1:
+    if denominations_count == 1:
         yield (_one_coin_counter(amount, denominations[0])
                + _zeros(len(denominations) - 1))
     else:
