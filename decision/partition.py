@@ -34,9 +34,7 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
     _validate_amount(amount)
     denominations = tuple(sorted(denominations))
     _validate_denominations(denominations)
-    return _to_change(_coins_counter(amount, denominations,
-                                     len(denominations)),
-                      denominations)
+    return _to_change(_coins_counter(amount, denominations), denominations)
 
 
 def coin_changes(amount: int, denominations: Iterable[int]

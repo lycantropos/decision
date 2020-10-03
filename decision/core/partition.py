@@ -11,16 +11,15 @@ _zeros = (0,).__mul__  # type: Callable[[int], CoinsCounter]
 
 
 @lru_cache(1024)
-def coins_counter(amount: int,
-                  denominations: Sequence[int],
-                  denominations_count: int) -> CoinsCounter:
+def coins_counter(amount: int, denominations: Sequence[int]) -> CoinsCounter:
+    denominations_count = len(denominations)
     if not amount:
-        return _zeros(len(denominations))
+        return _zeros(denominations_count)
     elif denominations_count == 1:
         return (_one_coin_counter(amount, denominations[0])
-                + _zeros(len(denominations) - 1))
+                + _zeros(denominations_count - 1))
     elif amount <= denominations[0]:
-        return (1,) + _zeros(len(denominations) - 1)
+        return (1,) + _zeros(denominations_count - 1)
     else:
         def key(counter: CoinsCounter) -> Tuple[int, int]:
             return (sum(count * denomination
