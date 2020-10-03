@@ -23,18 +23,14 @@ def coins_counter(amount: int,
                   denominations_count: int) -> CoinsCounter:
     if not amount:
         return _zeros(len(denominations))
-    elif amount <= denominations[0]:
-        return (1,) + _zeros(len(denominations) - 1)
     elif denominations_count == 1:
         return (_one_coin_counter(amount, denominations[0])
                 + _zeros(len(denominations) - 1))
+    elif amount <= denominations[0]:
+        return (1,) + _zeros(len(denominations) - 1)
     elif denominations_count == 2:
         return (_two_coin_counter(amount, denominations[0], denominations[1])
                 + _zeros(len(denominations) - 2))
-    elif denominations_count == 3:
-        return (_three_coin_counter(amount, denominations[0], denominations[1],
-                                    denominations[2])
-                + _zeros(len(denominations) - 3))
     else:
         def key(counts: Tuple[int, ...]) -> Tuple[int, int]:
             return (sum(count * denomination
@@ -56,23 +52,15 @@ def coins_counter(amount: int,
         last_denomination_index = denominations_count - 1
         last_denomination = denominations[last_denomination_index]
         max_last_denomination_count = amount // last_denomination
-        result = min([_add_at_index(coins_counter(start_amount, denominations,
-                                                  last_denomination_index),
-                                    last_denomination_index,
-                                    last_denomination_count)
-                      for last_denomination_count, start_amount
-                      in zip(range(max_last_denomination_count + 1),
-                             accumulate(chain((amount,),
-                                              repeat(last_denomination)),
-                                        sub))],
-                     key=key)
-        return min(result,
-                   _zeros(last_denomination_index)
-                   + (1
-                      if amount < last_denomination
-                      else ceil_division(amount, last_denomination),)
-                   + _zeros(len(denominations) - 1
-                            - last_denomination_index),
+        return min([_add_at_index(coins_counter(start_amount, denominations,
+                                                last_denomination_index),
+                                  last_denomination_index,
+                                  last_denomination_count)
+                    for last_denomination_count, start_amount
+                    in zip(range(max_last_denomination_count + 1),
+                           accumulate(chain((amount,),
+                                            repeat(last_denomination)),
+                                      sub))],
                    key=key)
 
 
@@ -121,112 +109,6 @@ def _two_coin_counter(amount: int,
         if has_non_negative_solution:
             return (first_count + offset * prime_second_denomination,
                     second_count - offset * prime_first_denomination)
-
-
-def _three_coin_counter(amount: int,
-                        first_denomination: int,
-                        second_denomination: int,
-                        third_denomination: int) -> Tuple[int, int, int]:
-    first_second_gcd = math.gcd(first_denomination, second_denomination)
-    gcd = math.gcd(first_second_gcd, third_denomination)
-    if gcd != 1:
-        first_denomination //= gcd
-        second_denomination //= gcd
-        third_denomination //= gcd
-        first_second_gcd //= gcd
-        amount = ceil_division(amount, gcd)
-    prime_first_denomination = first_denomination // first_second_gcd
-    prime_second_denomination = second_denomination // first_second_gcd
-    first_third_offset, second_third_offset = diophantine_initial_solution(
-            prime_first_denomination, prime_second_denomination,
-            third_denomination)
-
-    def negative_positive(first_count: int,
-                          second_count: int,
-                          min_third_offset: int) -> Iterator[Tuple[int, int]]:
-        min_first_second_offset = ((first_third_offset * second_count
-                                    - second_third_offset * first_count)
-                                   // third_denomination)
-        max_first_second_offset = ceil_division(
-                first_third_offset * min_third_offset - first_count,
-                prime_second_denomination)
-        for first_second_offset in range(min_first_second_offset,
-                                         max_first_second_offset + 1):
-            third_offset = ((second_count
-                             - prime_first_denomination * first_second_offset)
-                            // second_third_offset)
-            if (third_offset >= min_third_offset
-                    and (first_count
-                         + prime_second_denomination * first_second_offset
-                         - first_third_offset * third_offset >= 0)):
-                yield first_second_offset, third_offset
-
-    def positive_negative(first_count: int,
-                          second_count: int,
-                          min_third_offset: int) -> Iterator[Tuple[int, int]]:
-        min_first_second_offset = ceil_division(
-                first_third_offset * min_third_offset - first_count,
-                prime_second_denomination)
-        max_first_second_offset = ((first_third_offset * second_count
-                                    - second_third_offset * first_count)
-                                   // third_denomination)
-        for first_second_offset in range(min_first_second_offset,
-                                         max_first_second_offset + 1):
-            third_offset = ((first_count
-                             + prime_second_denomination * first_second_offset)
-                            // first_third_offset)
-            if (third_offset >= min_third_offset
-                    and (second_count
-                         - prime_first_denomination * first_second_offset
-                         - second_third_offset * third_offset >= 0)):
-                yield first_second_offset, third_offset
-
-    def positive_zero(first_count: int,
-                      second_count: int,
-                      min_third_offset: int) -> Iterator[Tuple[int, int]]:
-        min_first_second_offset = ((first_third_offset * min_third_offset
-                                    - first_count)
-                                   // prime_second_denomination)
-        max_first_second_offset = second_count // prime_first_denomination
-        for first_second_offset in range(min_first_second_offset,
-                                         max_first_second_offset + 1):
-            third_offset = ((first_count
-                             + prime_second_denomination * first_second_offset)
-                            // first_third_offset)
-            if third_offset >= min_third_offset:
-                yield first_second_offset, third_offset
-
-    to_offsets = (negative_positive
-                  if second_third_offset > 0
-                  else (positive_negative
-                        if second_third_offset < 0
-                        else positive_zero))
-    for amount in range(amount,
-                        min(ceil_division(amount, first_denomination)
-                            * first_denomination,
-                            ceil_division(amount, second_denomination)
-                            * second_denomination,
-                            ceil_division(amount, third_denomination)
-                            * third_denomination) + 1):
-        temp_count, third_count = diophantine_initial_solution(
-                first_second_gcd, third_denomination, amount)
-        first_count, second_count = diophantine_initial_solution(
-                prime_first_denomination, prime_second_denomination,
-                temp_count)
-        offsets = tuple(to_offsets(first_count, second_count,
-                                   ceil_division(-third_count,
-                                                 first_second_gcd)))
-        if not offsets:
-            continue
-        return min([((first_count
-                      + prime_second_denomination * first_second_offset
-                      - first_third_offset * third_offset),
-                     (second_count
-                      - prime_first_denomination * first_second_offset
-                      - second_third_offset * third_offset),
-                     third_count + first_second_gcd * third_offset)
-                    for first_second_offset, third_offset in offsets],
-                   key=sum)
 
 
 def _add_at_index(counter: CoinsCounter,
