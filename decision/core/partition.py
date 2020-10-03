@@ -52,15 +52,23 @@ def coins_counter(amount: int,
         last_denomination_index = denominations_count - 1
         last_denomination = denominations[last_denomination_index]
         max_last_denomination_count = amount // last_denomination
-        return min([_add_at_index(coins_counter(start_amount, denominations,
-                                                last_denomination_index),
-                                  last_denomination_index,
-                                  last_denomination_count)
-                    for last_denomination_count, start_amount
-                    in zip(range(max_last_denomination_count + 1),
-                           accumulate(chain((amount,),
-                                            repeat(last_denomination)),
-                                      sub))],
+        result = min([_add_at_index(coins_counter(start_amount, denominations,
+                                                  last_denomination_index),
+                                    last_denomination_index,
+                                    last_denomination_count)
+                      for last_denomination_count, start_amount
+                      in zip(range(max_last_denomination_count + 1),
+                             accumulate(chain((amount,),
+                                              repeat(last_denomination)),
+                                        sub))],
+                     key=key)
+        return min(result,
+                   _zeros(last_denomination_index)
+                   + (1
+                      if amount < last_denomination
+                      else ceil_division(amount, last_denomination),)
+                   + _zeros(len(denominations) - 1
+                            - last_denomination_index),
                    key=key)
 
 
