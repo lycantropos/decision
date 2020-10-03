@@ -1,3 +1,4 @@
+from bisect import bisect_left
 from functools import lru_cache
 from typing import (Callable,
                     Iterator,
@@ -11,23 +12,48 @@ _zeros = (0,).__mul__  # type: Callable[[int], CoinsCounter]
 
 
 @lru_cache(1024)
-def coins_counter(amount: int, denominations: Sequence[int]) -> CoinsCounter:
-    denominations_count = len(denominations)
+def coins_counter(amount: int,
+                  denominations: Sequence[int],
+                  denominations_count: int) -> CoinsCounter:
     if not amount:
-        return _zeros(denominations_count)
+        return _zeros(len(denominations))
     elif denominations_count == 1:
         return (_one_coin_counter(amount, denominations[0])
-                + _zeros(denominations_count - 1))
+                + _zeros(len(denominations) - 1))
     elif amount <= denominations[0]:
-        return (1,) + _zeros(denominations_count - 1)
+        return (1,) + _zeros(len(denominations) - 1)
     else:
+        if amount <= denominations[-1]:
+            denomination_index = bisect_left(denominations, amount)
+            if amount == denominations[denomination_index]:
+                return (_zeros(denomination_index) + (1,)
+                        + _zeros(len(denominations) - denomination_index - 1))
+        for denomination_index, denomination in enumerate(
+                denominations[:ceil_division(len(denominations), 2)]):
+            difference = amount - denomination
+            nearest_denomination_index = bisect_left(denominations, difference)
+            if (nearest_denomination_index < len(denominations)
+                    and (denominations[nearest_denomination_index]
+                         == difference)):
+                return (_zeros(denomination_index) + (2,)
+                        + _zeros(len(denominations) - denomination_index - 1)
+                        if nearest_denomination_index == denomination_index
+                        else
+                        _zeros(denomination_index) + (1,)
+                        + _zeros(nearest_denomination_index
+                                 - denomination_index - 1)
+                        + (1,)
+                        + _zeros(len(denominations)
+                                 - nearest_denomination_index - 1))
+
         def key(counter: CoinsCounter) -> Tuple[int, int]:
             return (sum(count * denomination
                         for count, denomination in zip(counter, denominations)
                         if count),
                     sum(counter))
 
-        return min(_coins_counters(amount, denominations, denominations_count),
+        return min(_optimal_coins_counters(amount, denominations,
+                                           denominations_count),
                    key=key)
 
 
@@ -42,30 +68,63 @@ def coins_counters(amount: int,
         yield (_one_coin_counter(amount, denominations[0])
                + _zeros(len(denominations) - 1))
     else:
-        yield from _coins_counters(amount, denominations, denominations_count)
+        last_denomination_index = denominations_count - 1
+        last_denomination = denominations[last_denomination_index]
+        max_last_denomination_count, amount_remainder = divmod(
+                amount, last_denomination)
+        step = amount_remainder
+        for last_denomination_count in range(max_last_denomination_count, 0,
+                                             -1):
+            for counter in coins_counters(step, denominations,
+                                          last_denomination_index):
+                yield (counter[:last_denomination_index]
+                       + (counter[last_denomination_index]
+                          + last_denomination_count,)
+                       + counter[last_denomination_index + 1:])
+            step += last_denomination
+        yield from coins_counters(step, denominations, last_denomination_index)
+        if amount_remainder:
+            yield (_zeros(last_denomination_index)
+                   + (max_last_denomination_count + 1,)
+                   + _zeros(len(denominations) - 1 - last_denomination_index))
 
 
-def _coins_counters(amount: int,
-                    denominations: Sequence[int],
-                    denominations_count: int) -> Iterator[CoinsCounter]:
-    last_denomination_index = denominations_count - 1
-    last_denomination = denominations[last_denomination_index]
-    max_last_denomination_count, amount_remainder = divmod(
-            amount, last_denomination)
-    step = amount_remainder
-    for last_denomination_count in range(max_last_denomination_count, 0, -1):
-        for counter in coins_counters(step, denominations,
-                                      last_denomination_index):
-            yield (counter[:last_denomination_index]
-                   + (counter[last_denomination_index]
-                      + last_denomination_count,)
-                   + counter[last_denomination_index + 1:])
-        step += last_denomination
-    yield from coins_counters(step, denominations, last_denomination_index)
-    if amount_remainder:
-        yield (_zeros(last_denomination_index)
-               + (max_last_denomination_count + 1,)
-               + _zeros(len(denominations) - 1 - last_denomination_index))
+def _optimal_coins_counters(amount: int,
+                            denominations: Sequence[int],
+                            denominations_count: int
+                            ) -> Iterator[CoinsCounter]:
+    if not amount:
+        yield _zeros(len(denominations))
+    elif amount <= denominations[0]:
+        yield (1,) + _zeros(len(denominations) - 1)
+    elif denominations_count == 1:
+        yield (_one_coin_counter(amount, denominations[0])
+               + _zeros(len(denominations) - 1))
+    else:
+        last_denomination_index = denominations_count - 1
+        last_denomination = denominations[last_denomination_index]
+        max_last_denomination_count, amount_remainder = divmod(
+                amount, last_denomination)
+        if amount_remainder:
+            step = amount_remainder
+            for last_denomination_count in range(max_last_denomination_count,
+                                                 0, -1):
+                counter = coins_counter(step, denominations,
+                                        last_denomination_index)
+                yield (counter[:last_denomination_index]
+                       + (counter[last_denomination_index]
+                          + last_denomination_count,)
+                       + counter[last_denomination_index + 1:])
+                step += last_denomination
+            yield (_zeros(last_denomination_index)
+                   + (max_last_denomination_count + 1,)
+                   + _zeros(len(denominations) - 1 - last_denomination_index))
+        else:
+            yield (_zeros(last_denomination_index)
+                   + (max_last_denomination_count,)
+                   + _zeros(len(denominations) - 1 - last_denomination_index))
+        yield from _optimal_coins_counters(amount, denominations,
+                                           last_denomination_index)
 
 
 def _one_coin_counter(amount: int, denomination: int) -> Tuple[int]:
