@@ -2,7 +2,7 @@ from itertools import repeat
 
 from hypothesis import strategies
 
-MAX_AMOUNT = 5 * 10 ** 2
+MAX_AMOUNT = 10 ** 4
 amounts = strategies.integers(0, MAX_AMOUNT)
 denominations = strategies.integers(1, MAX_AMOUNT)
 denominations_lists = strategies.lists(denominations,
