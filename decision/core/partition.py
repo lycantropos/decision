@@ -93,9 +93,7 @@ def coins_counters(amount: int,
             amount -= last_denomination
         if amount_remainder:
             yield (_zeros(last_denomination_index)
-                   + (max_last_denomination_count + bool(amount_remainder)
-                      if max_last_denomination_count
-                      else 1,)
+                   + (max_last_denomination_count + 1,)
                    + _zeros(len(denominations) - 1 - last_denomination_index))
 
 
