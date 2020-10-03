@@ -83,15 +83,21 @@ def coins_counters(amount: int,
     else:
         last_denomination_index = denominations_count - 1
         last_denomination = denominations[last_denomination_index]
-        max_last_denomination_count = amount // last_denomination
-        start_amount = amount - max_last_denomination_count * last_denomination
-        for last_denomination_count in range(max_last_denomination_count, -1,
-                                             -1):
+        max_last_denomination_count, remainder = divmod(amount,
+                                                        last_denomination)
+        start_amount = amount
+        for last_denomination_count in range(max_last_denomination_count + 1):
             for candidate in coins_counters(start_amount, denominations,
                                             last_denomination_index):
                 yield _add_at_index(candidate, last_denomination_index,
                                     last_denomination_count)
-            start_amount += last_denomination
+            start_amount -= last_denomination
+        if remainder:
+            yield (_zeros(last_denomination_index)
+                   + (1
+                      if amount < last_denomination
+                      else ceil_division(amount, last_denomination),)
+                   + _zeros(len(denominations) - 1 - last_denomination_index))
 
 
 def _one_coin_counter(amount: int, denomination: int) -> Tuple[int]:
