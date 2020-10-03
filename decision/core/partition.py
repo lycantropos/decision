@@ -52,15 +52,14 @@ def coins_counter(amount: int,
                         if count),
                     sum(counter))
 
-        return min(_optimal_coins_counters(amount, denominations,
-                                           denominations_count),
+        return min(_coins_counters(amount, denominations, denominations_count),
                    key=key)
 
 
-def _optimal_coins_counters(amount: int,
-                            denominations: Sequence[int],
-                            denominations_count: int
-                            ) -> Iterator[CoinsCounter]:
+def _coins_counters(amount: int,
+                    denominations: Sequence[int],
+                    denominations_count: int
+                    ) -> Iterator[CoinsCounter]:
     if not amount:
         yield _zeros(len(denominations))
     elif amount <= denominations[0]:
@@ -71,10 +70,8 @@ def _optimal_coins_counters(amount: int,
     else:
         last_denomination_index = denominations_count - 1
         last_denomination = denominations[last_denomination_index]
-        max_last_denomination_count, amount_remainder = divmod(
-                amount, last_denomination)
-        if amount_remainder:
-            step = amount_remainder
+        max_last_denomination_count, step = divmod(amount, last_denomination)
+        if step:
             for last_denomination_count in range(max_last_denomination_count,
                                                  0, -1):
                 counter = coins_counter(step, denominations,
@@ -91,8 +88,8 @@ def _optimal_coins_counters(amount: int,
             yield (_zeros(last_denomination_index)
                    + (max_last_denomination_count,)
                    + _zeros(len(denominations) - 1 - last_denomination_index))
-        yield from _optimal_coins_counters(amount, denominations,
-                                           last_denomination_index)
+        yield from _coins_counters(amount, denominations,
+                                   last_denomination_index)
 
 
 def _one_coin_counter(amount: int, denomination: int) -> Tuple[int]:
