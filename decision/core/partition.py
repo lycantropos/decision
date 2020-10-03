@@ -57,38 +57,6 @@ def coins_counter(amount: int,
                    key=key)
 
 
-def coins_counters(amount: int,
-                   denominations: Sequence[int],
-                   denominations_count: int) -> Iterator[CoinsCounter]:
-    if not amount:
-        yield _zeros(len(denominations))
-    elif amount <= denominations[0]:
-        yield (1,) + _zeros(len(denominations) - 1)
-    elif denominations_count == 1:
-        yield (_one_coin_counter(amount, denominations[0])
-               + _zeros(len(denominations) - 1))
-    else:
-        last_denomination_index = denominations_count - 1
-        last_denomination = denominations[last_denomination_index]
-        max_last_denomination_count, amount_remainder = divmod(
-                amount, last_denomination)
-        step = amount_remainder
-        for last_denomination_count in range(max_last_denomination_count, 0,
-                                             -1):
-            for counter in coins_counters(step, denominations,
-                                          last_denomination_index):
-                yield (counter[:last_denomination_index]
-                       + (counter[last_denomination_index]
-                          + last_denomination_count,)
-                       + counter[last_denomination_index + 1:])
-            step += last_denomination
-        yield from coins_counters(step, denominations, last_denomination_index)
-        if amount_remainder:
-            yield (_zeros(last_denomination_index)
-                   + (max_last_denomination_count + 1,)
-                   + _zeros(len(denominations) - 1 - last_denomination_index))
-
-
 def _optimal_coins_counters(amount: int,
                             denominations: Sequence[int],
                             denominations_count: int

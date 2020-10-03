@@ -7,8 +7,7 @@ from typing import (Any,
                     Sequence,
                     Tuple)
 
-from .core.partition import (coins_counter as _coins_counter,
-                             coins_counters as _coins_counters)
+from .core.partition import coins_counter as _coins_counter
 
 
 def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
@@ -37,39 +36,6 @@ def coin_change(amount: int, denominations: Iterable[int]) -> Tuple[int, ...]:
     return _to_change(_coins_counter(amount, denominations,
                                      len(denominations)),
                       denominations)
-
-
-def coin_changes(amount: int, denominations: Iterable[int]
-                 ) -> Iterator[Tuple[int, ...]]:
-    """
-    Returns iterator over all possible coins of given unique denominations
-    such that their sum will be no less than the given amount.
-
-    Reference:
-        https://en.wikipedia.org/wiki/Change-making_problem
-
-    >>> list(coin_changes(0, [2, 3]))
-    [()]
-    >>> list(coin_changes(5, [2, 3]))
-    [(2, 3), (2, 2, 2), (3, 3)]
-    >>> list(coin_changes(5, [2, 3, 5]))
-    [(5,), (2, 3), (2, 2, 2), (3, 3)]
-    >>> list(coin_changes(15, [2, 3]))
-    [(3, 3, 3, 3, 3), (2, 2, 3, 3, 3, 3), (2, 2, 2, 3, 3, 3),\
- (2, 2, 2, 2, 2, 3, 3), (2, 2, 2, 2, 2, 2, 3), (2, 2, 2, 2, 2, 2, 2, 2)]
-    >>> list(coin_changes(15, [2, 3, 5]))
-    [(5, 5, 5), (2, 3, 5, 5), (2, 2, 2, 5, 5), (3, 3, 5, 5), (2, 3, 3, 3, 5),\
- (2, 2, 3, 3, 5), (2, 2, 2, 2, 3, 5), (2, 2, 2, 2, 2, 5), (3, 3, 3, 3, 5),\
- (3, 3, 3, 3, 3), (2, 2, 3, 3, 3, 3), (2, 2, 2, 3, 3, 3),\
- (2, 2, 2, 2, 2, 3, 3), (2, 2, 2, 2, 2, 2, 3), (2, 2, 2, 2, 2, 2, 2, 2)]
-    """
-    _validate_amount(amount)
-    denominations = tuple(denominations)
-    _validate_denominations(denominations)
-    denominations = sorted(denominations)
-    return map(_to_change, _coins_counters(amount, denominations,
-                                           len(denominations)),
-               repeat(denominations))
 
 
 def _to_change(counts: Sequence[int],
