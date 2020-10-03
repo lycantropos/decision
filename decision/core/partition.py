@@ -32,11 +32,11 @@ def coins_counter(amount: int,
         return (_two_coin_counter(amount, denominations[0], denominations[1])
                 + _zeros(len(denominations) - 2))
     else:
-        def key(counts: Tuple[int, ...]) -> Tuple[int, int]:
+        def key(counter: CoinsCounter) -> Tuple[int, int]:
             return (sum(count * denomination
-                        for count, denomination in zip(counts, denominations)
+                        for count, denomination in zip(counter, denominations)
                         if count),
-                    sum(counts))
+                    sum(counter))
 
         if amount <= denominations[-1]:
             ceil_index = bisect_left(denominations, amount)
