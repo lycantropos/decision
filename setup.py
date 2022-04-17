@@ -7,11 +7,16 @@ import decision
 
 project_base_url = 'https://github.com/lycantropos/decision/'
 
+
+def read_file(path_string: str) -> str:
+    return Path(path_string).read_text(encoding='utf-8')
+
+
 setup(name=decision.__name__,
       packages=find_packages(exclude=('tests', 'tests.*')),
       version=decision.__version__,
       description=decision.__doc__,
-      long_description=Path('README.md').read_text(encoding='utf-8'),
+      long_description=read_file('README.md'),
       long_description_content_type='text/markdown',
       author='Azat Ibrakov',
       author_email='azatibrakov@gmail.com',
@@ -28,4 +33,4 @@ setup(name=decision.__name__,
       url=project_base_url,
       download_url=project_base_url + 'archive/master.zip',
       python_requires='>=3.5',
-      install_requires=Path('requirements.txt').read_text(encoding='utf-8'))
+      install_requires=read_file('requirements.txt'))
