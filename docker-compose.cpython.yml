@@ -13,7 +13,6 @@ services:
       - ./pytest.ini:/opt/decision/pytest.ini
       - ./README.md:/opt/decision/README.md
       - ./requirements-tests.txt:/opt/decision/requirements-tests.txt
-      - ./requirements.txt:/opt/decision/requirements.txt
       - ./setup.py:/opt/decision/setup.py
       - ./tests:/opt/decision/tests
     entrypoint: pytest
