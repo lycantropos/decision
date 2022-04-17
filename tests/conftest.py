@@ -5,7 +5,7 @@ import pytest
 from hypothesis import settings
 
 on_ci = bool(os.getenv('CI', False))
-max_examples = (-(settings.default.max_examples // 4)
+max_examples = (-(-settings.default.max_examples // 4)
                 if on_ci
                 else settings.default.max_examples)
 settings.register_profile('default',
