@@ -32,14 +32,10 @@ git clone https://github.com/lycantropos/decision.git
 cd decision
 ```
 
-Install dependencies
-```bash
-python -m pip install -r requirements.txt
-```
-
 Install
 ```bash
 python setup.py install
+```
 
 Usage
 -----
