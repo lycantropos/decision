@@ -1,15 +1,14 @@
-from typing import List
-
 import pytest
 from hypothesis import given
 
-from decision.core.utils import ceil_division
+from decision._core.utils import ceil_division
 from decision.partition import coin_change
+
 from . import strategies
 
 
 @given(strategies.amounts, strategies.denominations_lists)
-def test_basic(amount: int, denominations: List[int]) -> None:
+def test_basic(amount: int, denominations: list[int]) -> None:
     result = coin_change(amount, denominations)
 
     assert isinstance(result, tuple)
@@ -17,14 +16,14 @@ def test_basic(amount: int, denominations: List[int]) -> None:
 
 
 @given(strategies.amounts, strategies.denominations_lists)
-def test_elements(amount: int, denominations: List[int]) -> None:
+def test_elements(amount: int, denominations: list[int]) -> None:
     result = coin_change(amount, denominations)
 
     assert all(element in denominations for element in result)
 
 
 @given(strategies.amounts, strategies.denominations_lists)
-def test_properties(amount: int, denominations: List[int]) -> None:
+def test_properties(amount: int, denominations: list[int]) -> None:
     result = coin_change(amount, denominations)
 
     assert sum(result) >= amount
@@ -32,12 +31,12 @@ def test_properties(amount: int, denominations: List[int]) -> None:
 
 
 @given(strategies.invalid_amounts, strategies.denominations_lists)
-def test_invalid_amount(amount: int, denominations: List[int]) -> None:
+def test_invalid_amount(amount: int, denominations: list[int]) -> None:
     with pytest.raises(ValueError):
         coin_change(amount, denominations)
 
 
 @given(strategies.amounts, strategies.invalid_denominations_lists)
-def test_invalid_denominations(amount: int, denominations: List[int]) -> None:
+def test_invalid_denominations(amount: int, denominations: list[int]) -> None:
     with pytest.raises(ValueError):
         coin_change(amount, denominations)

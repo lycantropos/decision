@@ -10,9 +10,8 @@ services:
     image: lycantropos/decision-pypy:0.3.1
     volumes:
       - ./decision:/opt/decision/decision
-      - ./pytest.ini:/opt/decision/pytest.ini
+      - ./pyproject.toml:/opt/decision/pyproject.toml
       - ./README.md:/opt/decision/README.md
-      - ./requirements-tests.txt:/opt/decision/requirements-tests.txt
       - ./setup.py:/opt/decision/setup.py
       - ./tests:/opt/decision/tests
     entrypoint: pytest
