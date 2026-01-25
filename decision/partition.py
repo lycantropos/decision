@@ -9,7 +9,9 @@ from typing import Any as _Any
 from ._core.partition import coins_counter as _coins_counter
 
 
-def coin_change(amount: int, denominations: _Iterable[int]) -> tuple[int, ...]:
+def coin_change(
+    amount: int, denominations: _Iterable[int], /
+) -> tuple[int, ...]:
     """
     Solves coin change problem:
     what is the minimal number of coins of given unique denominations
