@@ -2,6 +2,7 @@
 
 [![Github Actions](https://github.com/lycantropos/decision/workflows/CI/badge.svg)](https://github.com/lycantropos/decision/actions/workflows/ci.yml "Github Actions")
 [![Codecov](https://codecov.io/gh/lycantropos/decision/branch/master/graph/badge.svg)](https://codecov.io/gh/lycantropos/decision "Codecov")
+[![Documentation](https://readthedocs.org/projects/decision/badge/?version=latest)](https://decision.readthedocs.io/en/latest "Documentation")
 [![License](https://img.shields.io/github/license/lycantropos/decision.svg)](https://github.com/lycantropos/decision/blob/master/LICENSE "License")
 [![PyPI](https://badge.fury.io/py/decision.svg)](https://badge.fury.io/py/decision "PyPI")
 
