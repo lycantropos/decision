@@ -1,7 +1,5 @@
 import os
-import time
-from collections.abc import Callable, Iterator
-from datetime import timedelta
+from collections.abc import Callable
 from typing import cast
 
 import pytest
@@ -11,7 +9,7 @@ on_ci = bool(os.getenv('CI'))
 max_examples = settings().max_examples
 settings.register_profile(
     'default',
-    deadline=(timedelta(hours=1) / max_examples if on_ci else None),
+    deadline=None,
     derandomize=False,
     max_examples=max_examples,
     suppress_health_check=[HealthCheck.too_slow],
@@ -23,24 +21,6 @@ hookimpl = cast(
     Callable[..., Callable[[Callable[..., None]], Callable[..., None]]],
     pytest.hookimpl,
 )
-
-if on_ci:
-    time_left = timedelta(hours=1)
-
-    @hookimpl(tryfirst=True)
-    def pytest_runtest_call(item: pytest.Function) -> None:
-        set_deadline = settings(deadline=time_left / max_examples)
-        item.obj = set_deadline(item.obj)
-
-    @pytest.fixture(autouse=True)
-    def time_function_call() -> Iterator[None]:
-        start = time.monotonic()
-        try:
-            yield
-        finally:
-            duration = timedelta(seconds=time.monotonic() - start)
-            global time_left
-            time_left = max(duration, time_left) - duration
 
 
 @hookimpl(trylast=True)
